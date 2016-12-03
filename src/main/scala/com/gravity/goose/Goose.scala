@@ -40,7 +40,7 @@ class Goose(config: Configuration = new Configuration) {
   }
 
   def extractContent(url: String): Article = {
-    val cc = new CrawlCandidate(config, url, null)
+    val cc = CrawlCandidate(config, url, null)
     sendToActor(cc)
   }
 

@@ -30,7 +30,7 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
       <version>1.7.21</version>
-      <scope>test</scope>
+      <!--<scope>test</scope>-->
     </dependency>
     <dependency>
       <groupId>org.jsoup</groupId>
@@ -41,13 +41,6 @@
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.5</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-compiler</artifactId>
-      <version>2.11.8</version>
-      <scope>compile</scope>
     </dependency>
 
     <dependency>
@@ -65,6 +58,11 @@
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
       <version>2.6</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.8.5</version>
     </dependency>
   </dependencies>
 
@@ -89,11 +87,27 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.scala-tools</groupId>
-        <artifactId>maven-scala-plugin</artifactId>
-        <version>2.15.2</version>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
+        <version>3.2.1</version>
         <configuration>
           <charset>UTF-8</charset>
+          <args>
+              <!--<arg>-deprecation</arg>-->
+              <arg>-feature</arg>
+              <arg>-language:existentials</arg>
+              <arg>-language:higherKinds</arg>
+              <arg>-language:implicitConversions</arg>
+              <arg>-unchecked</arg>
+              <!--<arg>-Xfatal-warnings</arg>-->
+              <arg>-Xlint</arg>
+              <arg>-Yno-adapted-args</arg>
+              <arg>-Ywarn-dead-code</arg>
+              <!--<arg>-Ywarn-numeric-widen</arg>-->
+              <arg>-Ywarn-value-discard</arg>
+              <arg>-Xfuture</arg>
+              <arg>-Ywarn-unused-import</arg>
+          </args>
           <jvmArgs>
             <jvmArg>-Xmx1024m</jvmArg>
           </jvmArgs>

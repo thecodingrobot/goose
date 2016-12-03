@@ -4,6 +4,7 @@ import java.net.{MalformedURLException, URL}
 import java.util.ArrayList
 import java.util.regex.{Matcher, Pattern}
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.gravity.goose.text.string
 import com.gravity.goose.{Article, Configuration}
 import org.apache.http.client.HttpClient
@@ -13,7 +14,7 @@ import org.jsoup.select.Elements
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
 import scala.io.Source
-import scala.util.parsing.json.{JSON, JSONObject}
+import scala.util.Try
 
 /**
 * Created by Jim Plush
@@ -24,6 +25,8 @@ import scala.util.parsing.json.{JSON, JSONObject}
 class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: Configuration) extends ImageExtractor {
 
   import UpgradedImageIExtractor._
+
+  private val objectMapper = new ObjectMapper()
 
   /**
   * What's the minimum bytes for an image we'd accept is
@@ -84,6 +87,17 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     val dataConfig: String  =
       article.rawDoc.select("div#maincontent div#main div.primary-playback-region div.wcvideoplayer[data-metadata]").attr("data-metadata")
 
+    val result = Try {
+      val jsonAst = objectMapper.readTree(dataConfig)
+      val headlineImageMap = jsonAst.get("headlineImage")
+      headlineImageMap.get("url").asText()
+    }
+
+    result.failed foreach (t => warn(t, "Error extracting checkForMsnVideoHeadlineImage"))
+
+    result.toOption
+
+/*
     JSON.parseRaw(dataConfig) match {
       case Some(JSONObject(metadataMap)) =>
         metadataMap.get("headlineImage") match {
@@ -97,6 +111,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
 
       case _ => None
     }
+*/
   }
 
   private def checkForMetaTag: Option[Image] = {

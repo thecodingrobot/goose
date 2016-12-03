@@ -23,21 +23,18 @@ package com.gravity.goose.images
  * Date: 8/18/11
  */
 
-import org.apache.commons.io.IOUtils
-import org.apache.http.Header
-import org.apache.http.HttpEntity
-import org.apache.http.HttpResponse
-import org.apache.http.client.ClientProtocolException
-import org.apache.http.client.HttpClient
-import org.apache.http.client.methods.HttpGet
-import org.apache.http.client.protocol.ClientContext
-import org.apache.http.protocol.BasicHttpContext
-import org.apache.http.protocol.HttpContext
 import java.io._
 import java.util.Random
-import com.gravity.goose.utils.Logging
+
 import com.gravity.goose.Configuration
 import com.gravity.goose.network.HtmlFetcher
+import com.gravity.goose.utils.Logging
+import org.apache.commons.io.IOUtils
+import org.apache.http.HttpEntity
+import org.apache.http.client.{ClientProtocolException, HttpClient}
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.client.protocol.ClientContext
+import org.apache.http.protocol.{BasicHttpContext, HttpContext}
 
 /**
 * This class will be responsible for storing images to disk

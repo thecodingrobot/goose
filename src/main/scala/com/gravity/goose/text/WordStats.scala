@@ -32,9 +32,6 @@ object WordStats {
 
 class WordStats {
 
-
-  import WordStats._
-
   /**
   * total number of stopwords or good words that we can calculate
   */

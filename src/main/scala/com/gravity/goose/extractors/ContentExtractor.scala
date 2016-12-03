@@ -333,17 +333,17 @@ trait ContentExtractor {
     }
     val text: String = e.text.trim
     val words: Array[String] = SPACE_SPLITTER.split(text)
-    val numberOfWords: Float = words.length
+    val numberOfWords = words.length
     val sb: StringBuilder = new StringBuilder
     for (link <- links) {
       sb.append(link.text)
     }
     val linkText: String = sb.toString()
     val linkWords: Array[String] = SPACE_SPLITTER.split(linkText)
-    val numberOfLinkWords: Float = linkWords.length
-    val numberOfLinks: Float = links.size
+    val numberOfLinkWords = linkWords.length
+    val numberOfLinks = links.size
     val linkDivisor: Float = numberOfLinkWords / numberOfWords
-    val score: Float = linkDivisor * numberOfLinks
+    val score = linkDivisor * numberOfLinks
 
     trace(logPrefix + "Calulated link density score as: " + score + " for node: " + getShortText(e.text, 50))
 
@@ -383,7 +383,7 @@ trait ContentExtractor {
   * @param node
   * @param addToScore - the score to add to the node
   */
-  private def updateScore(node: Element, addToScore: Int) {
+  private def updateScore(node: Element, addToScore: Int): Unit = {
     var currentScore: Int = 0
     try {
       val scoreString: String = node.attr("gravityScore")
@@ -395,7 +395,7 @@ trait ContentExtractor {
       }
     }
     val newScore: Int = currentScore + addToScore
-    node.attr("gravityScore", Integer.toString(newScore))
+    val el = node.attr("gravityScore", Integer.toString(newScore))
   }
 
   /**
@@ -404,7 +404,7 @@ trait ContentExtractor {
   * @param node
   * @param addToCount
   */
-  private def updateNodeCount(node: Element, addToCount: Int) {
+  private def updateNodeCount(node: Element, addToCount: Int): Unit = {
     var currentScore: Int = 0
     try {
       val countString: String = node.attr("gravityNodes")
@@ -416,7 +416,7 @@ trait ContentExtractor {
       }
     }
     val newScore: Int = currentScore + addToCount
-    node.attr("gravityNodes", Integer.toString(newScore))
+    val el = node.attr("gravityNodes", Integer.toString(newScore))
   }
 
   /**

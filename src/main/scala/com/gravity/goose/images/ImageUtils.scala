@@ -23,22 +23,22 @@ package com.gravity.goose.images
  * Date: 8/18/11
  */
 
-import javax.imageio.ImageIO
 import java.awt.color.CMMException
 import java.awt.image.BufferedImage
-import com.gravity.goose.utils.{URLHelper, Logging}
-import org.apache.http.client.HttpClient
-import org.apache.http.HttpEntity
-import org.apache.http.protocol.{BasicHttpContext, HttpContext}
-import org.apache.http.client.protocol.ClientContext
-import org.apache.http.client.methods.HttpGet
-import java.util.{Random, ArrayList, HashMap}
 import java.io._
+import java.util.HashMap
+import javax.imageio.ImageIO
+
 import com.gravity.goose.Configuration
-import com.gravity.goose.text.{string, HashUtils}
-import org.apache.http.util.EntityUtils
+import com.gravity.goose.network.{HtmlFetcher, ImageFetchException}
+import com.gravity.goose.text.{HashUtils, string}
+import com.gravity.goose.utils.{Logging, URLHelper}
 import org.apache.commons.io.IOUtils
-import com.gravity.goose.network.{ImageFetchException, HtmlFetcher}
+import org.apache.http.HttpEntity
+import org.apache.http.client.HttpClient
+import org.apache.http.client.protocol.ClientContext
+import org.apache.http.protocol.{BasicHttpContext, HttpContext}
+import org.apache.http.util.EntityUtils
 
 object ImageUtils extends Logging {
   val spaceRegex = " ".r

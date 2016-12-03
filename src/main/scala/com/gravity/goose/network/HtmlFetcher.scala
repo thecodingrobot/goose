@@ -235,7 +235,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     None
   }
 
-  private def initClient() {
+  private def initClient(): Unit = {
 
     trace("Initializing HttpClient")
 
@@ -275,9 +275,9 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     cm.setDefaultMaxPerRoute(500)
     httpClient = new DefaultHttpClient(cm, httpParams)
     httpClient.asInstanceOf[AbstractHttpClient].setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(0, false))
-    httpClient.getParams.setParameter("http.conn-manager.timeout", 120000L)
-    httpClient.getParams.setParameter("http.protocol.wait-for-continue", 10000L)
-    httpClient.getParams.setParameter("http.tcp.nodelay", true)
+    val params = httpClient.getParams.setParameter("http.conn-manager.timeout", 120000L)
+      .setParameter("http.protocol.wait-for-continue", 10000L)
+      .setParameter("http.tcp.nodelay", true)
   }
 
   /**

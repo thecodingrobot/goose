@@ -18,11 +18,11 @@
 
 package com.gravity.goose
 
-import network.{HtmlFetcher, AbstractHtmlFetcher}
+import com.gravity.goose.extractors.{AdditionalDataExtractor, ContentExtractor, PublishDateExtractor, StandardContentExtractor}
+import com.gravity.goose.network.{AbstractHtmlFetcher, HtmlFetcher}
 import org.jsoup.nodes.Element
-import java.util.Date
+
 import scala.beans.BeanProperty
-import com.gravity.goose.extractors.{StandardContentExtractor, ContentExtractor, AdditionalDataExtractor, PublishDateExtractor}
 
 
 /**
@@ -116,7 +116,7 @@ class Configuration {
     publishDateExtractor
   }
 
-  def setContentExtractor(extractor: ContentExtractor) {
+  def setContentExtractor(extractor: ContentExtractor): Unit = {
     if (extractor == null) throw new IllegalArgumentException("extractor must not be null!")
     contentExtractor = extractor
   }
