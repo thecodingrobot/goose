@@ -22,17 +22,23 @@ import org.apache.http.protocol.{BasicHttpContext, HttpContext}
 import org.apache.http.client.protocol.ClientContext
 import org.apache.http.{Header, HttpEntity, HttpResponse}
 import org.apache.http.client.HttpClient
-import org.jsoup.nodes.{Element, Document}
+import org.jsoup.nodes.{Document, Element}
 import com.gravity.goose.{Article, Configuration}
 import java.util.ArrayList
+
 import collection.mutable.HashMap
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import com.gravity.goose.text.string
 import java.net.{MalformedURLException, URL}
+
 import com.gravity.goose.network.HtmlFetcher
-import java.io.{IOException, File}
-import java.util.regex.{Pattern, Matcher}
+import java.io.{File, IOException}
+import java.util
+import java.util.regex.{Matcher, Pattern}
+
 import org.apache.http.client.methods.HttpGet
+
+import scala.collection.mutable
 
 /**
 * Created by Jim Plush
@@ -188,7 +194,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
     }
   }
 
-  def getAllImages: ArrayList[Element] = {
+  def getAllImages: util.ArrayList[Element] = {
     null
   }
 
@@ -203,7 +209,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   }
 
 
-  def getImageCandidates(node: Element): Option[ArrayList[Element]] = {
+  def getImageCandidates(node: Element): Option[util.ArrayList[Element]] = {
 
     for {
       n <- getNode(node)
@@ -251,7 +257,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   *
   * @param node
   */
-  private def checkForLargeImages(node: Element, parentDepthLevel: Int, siblingDepthLevel: Int) {
+  private def checkForLargeImages(node: Element, parentDepthLevel: Int, siblingDepthLevel: Int): Unit = {
     trace(logPrefix + "Checking for large images - parent depth %d sibling depth: %d".format(parentDepthLevel, siblingDepthLevel))
 
 
@@ -265,7 +271,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
             if (highScoreImage == null) {
               highScoreImage = key
             } else {
-              if (value > scoredImages.get(highScoreImage).get) {
+              if (value > scoredImages(highScoreImage)) {
                 highScoreImage = key
               }
             }
@@ -278,8 +284,8 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
           this.image.imageSrc = buildImagePath(highScoreImage.attr("src"))
           this.image.imageExtractionType = "bigimage"
           this.image.bytes = f.length.asInstanceOf[Int]
-          if (scoredImages.size > 0) {
-            this.image.confidenceScore = (100 / scoredImages.size)
+          if (scoredImages.nonEmpty) {
+            this.image.confidenceScore = 100 / scoredImages.size
           }
           else {
             this.image.confidenceScore = 0
@@ -306,9 +312,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
     }
   }
 
-  def getNode(node: Element): Option[Element] = {
-    if (node == null) None else Some(node)
-  }
+  def getNode(node: Element): Option[Element] = Option(node)
 
   /**
   * loop through all the images and find the ones that have the best bytez to even make them a candidate
@@ -316,11 +320,11 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   * @param images
   * @return
   */
-  private def findImagesThatPassByteSizeTest(images: ArrayList[Element]): Option[ArrayList[Element]] = {
+  private def findImagesThatPassByteSizeTest(images: util.ArrayList[Element]): Option[util.ArrayList[Element]] = {
     var cnt: Int = 0
-    val goodImages: ArrayList[Element] = new ArrayList[Element]
+    val goodImages: util.ArrayList[Element] = new util.ArrayList[Element]
 
-    images.foreach(image => {
+    images.asScala.foreach(image => {
       try {
         if (cnt > 30) {
           trace(logPrefix + "Abort! they have over 30 images near the top node: " + this.doc.baseUri)
@@ -353,9 +357,9 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   * @param images
   * @return
   */
-  private def filterBadNames(images: Elements): Option[ArrayList[Element]] = {
-    val goodImages: ArrayList[Element] = new ArrayList[Element]
-    for (image <- images) {
+  private def filterBadNames(images: Elements): Option[util.ArrayList[Element]] = {
+    val goodImages: util.ArrayList[Element] = new util.ArrayList[Element]
+    for (image <- images.asScala) {
       if (this.isOkImageFileName(image)) {
         goodImages.add(image)
       }
@@ -391,7 +395,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   * known  places to look for good images.
   * //todo enable this to use a series of settings files so people can define what the image ids/classes are on specific sites
   */
-  def checkForKnownElements() {
+  def checkForKnownElements(): Unit = {
 
     var knownImage: Element = null
     trace(logPrefix + "Checking for known images from large sites")
@@ -524,12 +528,12 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   * @return
   */
 
-  private def downloadImagesAndGetResults(images: ArrayList[Element], depthLevel: Int): HashMap[Element, Float] = {
-    val imageResults: HashMap[Element, Float] = new HashMap[Element, Float]
+  private def downloadImagesAndGetResults(images: util.ArrayList[Element], depthLevel: Int): mutable.HashMap[Element, Float] = {
+    val imageResults: mutable.HashMap[Element, Float] = new mutable.HashMap[Element, Float]
     var cnt: Int = 1
     var initialArea: Float = 0
 
-    for (image <- images) {
+    for (image <- images.asScala) {
       var continueVar = true // major haxor during java to scala conversion -> this whole section needs a rewrite
       if (cnt > 30) {
         if (logger.isDebugEnabled) {
@@ -653,7 +657,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
     minBytesForImages
   }
 
-  def setMinBytesForImages(minBytesForImages: Int) {
+  def setMinBytesForImages(minBytesForImages: Int): Unit = {
     this.minBytesForImages = minBytesForImages
   }
 
@@ -661,7 +665,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
     tempStoragePath
   }
 
-  def setTempStoragePath(tempStoragePath: String) {
+  def setTempStoragePath(tempStoragePath: String): Unit = {
     this.tempStoragePath = tempStoragePath
   }
 

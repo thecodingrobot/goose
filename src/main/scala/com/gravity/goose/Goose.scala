@@ -54,7 +54,7 @@ class Goose(config: Configuration = new Configuration) {
     article
   }
 
-  def initializeEnvironment() {
+  def initializeEnvironment(): Unit = {
 
     val f = new File(config.localStoragePath)
     try {

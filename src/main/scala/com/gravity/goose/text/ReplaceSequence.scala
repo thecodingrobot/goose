@@ -18,8 +18,9 @@
 
 package com.gravity.goose.text
 
-import java.util.{ArrayList, List}
+import java.util
 
+import scala.collection.JavaConverters._
 /**
  * Created by IntelliJ IDEA.
  * User: robbie
@@ -104,8 +105,8 @@ class ReplaceSequence {
   def replaceAll(input: String): String = {
     if (string.isNullOrEmpty(input)) return string.empty
     var mutatedString = input
-    import scala.collection.JavaConversions._
-    for (rp <- replacements) {
+
+    for (rp <- replacements.asScala) {
       mutatedString = rp.replaceAll(mutatedString)
     }
     mutatedString
@@ -116,7 +117,7 @@ class ReplaceSequence {
     replacements.add(pair)
   }
 
-  var replacements: List[StringReplacement] = new ArrayList[StringReplacement]
+  var replacements: util.List[StringReplacement] = new util.ArrayList[StringReplacement]
 }
 
 

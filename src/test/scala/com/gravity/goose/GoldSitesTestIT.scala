@@ -1,6 +1,6 @@
 package com.gravity.goose
 
-import org.junit.Test
+import org.junit.{Ignore, Test}
 import org.junit.Assert._
 import com.gravity.goose.extractors.VoicesContentExtractor
 
@@ -10,6 +10,7 @@ import com.gravity.goose.extractors.VoicesContentExtractor
   * Date: 8/16/11
   * This class hits live websites and is only run manually, not part of the tests lifecycle
   */
+@Ignore
 class GoldSitesTestIT {
 
   @Test

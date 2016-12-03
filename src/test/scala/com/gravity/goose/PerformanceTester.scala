@@ -1,9 +1,7 @@
 package com.gravity.goose
 
+import com.gravity.goose.utils.FileHelper
 import org.apache.commons.lang.time.StopWatch
-import java.io.InputStream
-import org.apache.commons.io.IOUtils
-import utils.FileHelper
 
 /**
  * Created by Jim Plush

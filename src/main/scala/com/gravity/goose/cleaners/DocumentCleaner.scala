@@ -21,7 +21,7 @@ import com.gravity.goose.utils.Logging
 import java.util.regex.{Matcher, Pattern}
 import org.jsoup.nodes.{TextNode, Node, Element, Document}
 import com.gravity.goose.text.ReplaceSequence
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import com.gravity.goose.Article
 import collection.mutable.ListBuffer
 import org.jsoup.select.{TagsEvaluator, Collector, Elements}
@@ -70,7 +70,7 @@ trait DocumentCleaner {
     val ems: Elements = doc.getElementsByTag("em")
 
     for {
-      node <- ems
+      node <- ems.asScala
       images: Elements = node.getElementsByTag("img")
       if (images.size == 0)
     } {
@@ -87,7 +87,7 @@ trait DocumentCleaner {
   */
   private def cleanUpSpanTagsInParagraphs(doc: Document) = {
     val spans: Elements = doc.getElementsByTag("span")
-    for (item <- spans) {
+    for (item <- spans.asScala) {
       if (item.parent().nodeName() == "p") {
         val tn: TextNode = new TextNode(item.text, doc.baseUri)
         item.replaceWith(tn)
@@ -103,7 +103,7 @@ trait DocumentCleaner {
   private def removeDropCaps(doc: Document): Document = {
     val items: Elements = doc.select("span[class~=(dropcap|drop_cap)]")
     trace(items.size + " dropcap tags removed")
-    for (item <- items) {
+    for (item <- items.asScala) {
       val tn: TextNode = new TextNode(item.text, doc.baseUri)
       item.replaceWith(tn)
     }
@@ -114,7 +114,7 @@ trait DocumentCleaner {
   private def removeScriptsAndStyles(doc: Document): Document = {
 
     val scripts: Elements = doc.getElementsByTag("script")
-    for (item <- scripts) {
+    for (item <- scripts.asScala) {
       item.remove()
     }
     trace(scripts.size + " script tags removed")
@@ -179,13 +179,13 @@ trait DocumentCleaner {
 
       trace(naughtyList.size + " ID elements found against pattern: " + pattern)
 
-      for (node <- naughtyList) {
+      for (node <- naughtyList.asScala) {
         removeNode(node)
       }
       val naughtyList3: Elements = doc.getElementsByAttributeValueMatching("class", pattern)
       trace(naughtyList3.size + " CLASS elements found against pattern: " + pattern)
 
-      for (node <- naughtyList3) {
+      for (node <- naughtyList3.asScala) {
         removeNode(node)
       }
     }
@@ -201,13 +201,13 @@ trait DocumentCleaner {
   * Apparently jsoup expects the node's parent to not be null and throws if it is. Let's be safe.
   * @param node the node to remove from the doc
   */
-  private def removeNode(node: Element) {
+  private def removeNode(node: Element): Unit = {
     if (node == null || node.parent == null) return
     node.remove()
   }
 
 
-  def replaceElementsWithPara(doc: Document, div: Element) {
+  def replaceElementsWithPara(doc: Document, div: Element): Unit = {
     val newDoc: Document = new Document(doc.baseUri)
     val newNode: Element = newDoc.createElement("p")
     newNode.append(div.html)
@@ -218,12 +218,12 @@ trait DocumentCleaner {
 
     val selected = Collector.collect(wantedTags, doc)
 
-    for (elem <- selected) {
+    for (elem <- selected.asScala) {
       if (Collector.collect(blockElemementTags, elem).isEmpty) {
         replaceElementsWithPara(doc, elem)
       } else {
         val replacements = getReplacementNodes(doc, elem)
-        elem.children().foreach(_.remove())
+        elem.children().asScala.foreach(_.remove())
         replacements.foreach(n => {
           try {
             elem.appendChild(n)
@@ -246,7 +246,7 @@ trait DocumentCleaner {
     var divIndex = 0
 
 
-    for (div <- divs) {
+    for (div <- divs.asScala) {
       try {
         val divToPElementsMatcher: Matcher = divToPElementsPattern.matcher(div.html.toLowerCase)
         if (divToPElementsMatcher.find == false) {
@@ -256,7 +256,7 @@ trait DocumentCleaner {
         else {
           val replaceNodes = getReplacementNodes(doc, div)
 
-          div.children().foreach(_.remove())
+          div.children().asScala.foreach(_.remove())
           replaceNodes.foreach(node => {
 
             try {
@@ -304,7 +304,7 @@ trait DocumentCleaner {
 
     for {
 
-      kid <- div.childNodes()
+      kid <- div.childNodes().asScala
     } {
 
 
