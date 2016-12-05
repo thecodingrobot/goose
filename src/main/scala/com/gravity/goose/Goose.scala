@@ -48,7 +48,7 @@ class Goose(config: Configuration = new Configuration) {
     HtmlFetcher.getHttpClient.getConnectionManager.shutdown()
   }
 
-  def sendToActor(crawlCandidate: CrawlCandidate) = {
+  def sendToActor(crawlCandidate: CrawlCandidate): Article = {
     val crawler = new Crawler(config)
     val article = crawler.crawl(crawlCandidate)
     article

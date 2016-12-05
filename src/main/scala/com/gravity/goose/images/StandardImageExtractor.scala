@@ -17,27 +17,23 @@
  */
 package com.gravity.goose.images
 
-import org.jsoup.select.Elements
-import org.apache.http.protocol.{BasicHttpContext, HttpContext}
-import org.apache.http.client.protocol.ClientContext
-import org.apache.http.{Header, HttpEntity, HttpResponse}
-import org.apache.http.client.HttpClient
-import org.jsoup.nodes.{Document, Element}
-import com.gravity.goose.{Article, Configuration}
-import java.util.ArrayList
-
-import collection.mutable.HashMap
-import scala.collection.JavaConverters._
-import com.gravity.goose.text.string
-import java.net.{MalformedURLException, URL}
-
-import com.gravity.goose.network.HtmlFetcher
 import java.io.{File, IOException}
+import java.net.{MalformedURLException, URL}
 import java.util
 import java.util.regex.{Matcher, Pattern}
 
+import com.gravity.goose.network.HtmlFetcher
+import com.gravity.goose.text.string
+import com.gravity.goose.{Article, Configuration}
+import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
+import org.apache.http.client.protocol.ClientContext
+import org.apache.http.protocol.{BasicHttpContext, HttpContext}
+import org.apache.http.{Header, HttpEntity, HttpResponse}
+import org.jsoup.nodes.{Document, Element}
+import org.jsoup.select.Elements
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 /**
