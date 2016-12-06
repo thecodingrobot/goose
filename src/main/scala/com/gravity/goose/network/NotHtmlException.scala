@@ -25,5 +25,5 @@ package com.gravity.goose.network
  */
 
 class NotHtmlException(url: String) extends Exception {
-  override val getMessage = "No HTML returned for url: " + url
+  override val getMessage: String = "No HTML returned for url: " + url
 }

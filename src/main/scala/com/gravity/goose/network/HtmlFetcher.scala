@@ -23,7 +23,7 @@ import java.net.{SocketException, SocketTimeoutException, URLConnection}
 import java.util.Date
 
 import com.gravity.goose.Configuration
-import com.gravity.goose.utils.Logging
+import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.IOUtils
 import org.apache.http.client.config.{CookieSpecs, RequestConfig}
 import org.apache.http.client.methods.HttpGet
@@ -50,7 +50,7 @@ import scala.collection.JavaConverters._
   * contain up to 1GB of text that is just wasted resources so we set a max bytes level on how much content we're going
   * to try and pull back before we say screw it.
   */
-object HtmlFetcher extends AbstractHtmlFetcher with Logging {
+object HtmlFetcher extends AbstractHtmlFetcher with StrictLogging {
   /**
     * holds a reference to our override cookie store, we don't want to store
     * cookies for head requests, only slows shit down
@@ -118,10 +118,8 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
         }
         catch {
           case e: Exception =>
-            if (logger.isDebugEnabled) {
-              trace("Unable to get charset for: " + cleanUrl)
-              trace("Encoding Type is: " + encodingType)
-            }
+            logger.trace("Unable to get charset for: " + cleanUrl)
+            logger.trace("Encoding Type is: " + encodingType)
         }
         try {
           htmlResult = IOUtils.toString(instream, encodingType).trim
@@ -131,24 +129,24 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
         }
       }
       else {
-        trace("Unable to fetch URL Properly: " + cleanUrl)
+        logger.trace("Unable to fetch URL Properly: " + cleanUrl)
       }
     }
     catch {
       case e: NullPointerException =>
         logger.warn(e.toString + " " + e.getMessage + " Caught for URL: " + cleanUrl)
       case e: MaxBytesException =>
-        trace("GRVBIGFAIL: " + cleanUrl + " Reached max bytes size")
+        logger.trace("GRVBIGFAIL: " + cleanUrl + " Reached max bytes size")
         throw e
       case e: SocketException =>
         logger.warn(e.getMessage + " Caught for URL: " + cleanUrl)
       case e: SocketTimeoutException =>
-        trace(e.toString)
+        logger.trace(e.toString)
       case e: LoggableException =>
         logger.warn(e.getMessage)
         return None
       case e: Exception =>
-        trace("FAILURE FOR LINK: " + cleanUrl + " " + e.toString)
+        logger.trace("FAILURE FOR LINK: " + cleanUrl + " " + e.toString)
         return None
     }
     finally {
@@ -157,8 +155,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
           instream.close()
         }
         catch {
-          case e: Exception =>
-            logger.warn(e.getMessage + " Caught for URL: " + cleanUrl)
+          case e: Exception => logger.warn(e.getMessage + " Caught for URL: " + cleanUrl)
         }
       }
       if (httpget != null) {
@@ -167,17 +164,13 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
           entity = null
         }
         catch {
-          case e: Exception =>
+          case e: Exception => logger.warn(e.getMessage, e)
         }
       }
     }
-    if (logger.isDebugEnabled) {
-      logger.debug("starting...")
-    }
+    logger.debug("starting...")
     if (htmlResult == null || htmlResult.length < 1) {
-      if (logger.isDebugEnabled) {
-        logger.debug("HTMLRESULT is empty or null")
-      }
+      logger.debug("HTMLRESULT is empty or null")
       throw new NotHtmlException(cleanUrl)
     }
     var is: InputStream = null
@@ -193,7 +186,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
           if (htmlResult.contains("<title>") && htmlResult.contains("<p>")) {
             return Some(htmlResult)
           }
-          trace("GRVBIGFAIL: " + mimeType + " - " + cleanUrl)
+          logger.trace("GRVBIGFAIL: " + mimeType + " - " + cleanUrl)
           throw new NotHtmlException(cleanUrl)
         }
       }
@@ -211,10 +204,10 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
   }
 
   private def initClient(): HttpClient = {
-    trace("Initializing HttpClient")
+    logger.trace("Initializing HttpClient")
 
     emptyCookieStore = new CookieStore {
-      def addCookie(cookie: Cookie) {
+      def addCookie(cookie: Cookie): Unit = {
       }
 
       def getCookies: java.util.List[Cookie] = {
@@ -225,7 +218,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
         false
       }
 
-      def clear() {
+      def clear(): Unit = {
       }
 
       private[network] var emptyList = new java.util.ArrayList[Cookie]

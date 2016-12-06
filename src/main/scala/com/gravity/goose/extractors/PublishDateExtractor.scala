@@ -20,7 +20,7 @@ package com.gravity.goose.extractors
 import java.util.Date
 import javax.xml.datatype.DatatypeFactory
 
-import com.gravity.goose.utils.Logging
+import com.typesafe.scalalogging.StrictLogging
 import org.jsoup.nodes.Element
 
 /**
@@ -43,7 +43,7 @@ abstract class PublishDateExtractor extends Extractor[Date] {
   def extract(rootElement: Element): Date
 }
 
-object PublishDateExtractor extends Logging {
+object PublishDateExtractor extends StrictLogging {
   val logPrefix = "PublishDateExtractor: "
 
   lazy val datatypeFactory: DatatypeFactory = DatatypeFactory.newInstance()
@@ -52,10 +52,8 @@ object PublishDateExtractor extends Logging {
     * Helper function to return the minimum of two non-null Java Dates.
     */
   def minDate(lhs: java.util.Date, rhs: java.util.Date): java.util.Date = {
-    if (lhs.getTime < rhs.getTime)
-      lhs
-    else
-      rhs
+    if (lhs.getTime < rhs.getTime) lhs
+    else rhs
   }
 
   /**
@@ -69,7 +67,7 @@ object PublishDateExtractor extends Logging {
       Option(datatypeFactory.newXMLGregorianCalendar(txt).toGregorianCalendar.getTime)
     } catch {
       case ex: Exception =>
-        info(s"`$txt` could not be parsed to date as it did not meet the ISO 8601 spec")
+        logger.info(s"`$txt` could not be parsed to date as it did not meet the ISO 8601 spec", ex)
         None
     }
   }

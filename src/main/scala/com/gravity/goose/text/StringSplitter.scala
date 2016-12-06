@@ -38,7 +38,7 @@ class StringSplitter {
     pattern.split(input)
   }
 
-  private var pattern: Pattern = null
+  private var pattern: Pattern = _
 }
 
 

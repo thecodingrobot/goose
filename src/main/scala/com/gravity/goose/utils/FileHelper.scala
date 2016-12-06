@@ -21,6 +21,8 @@ package com.gravity.goose.utils
 import org.apache.commons.io.IOUtils
 import java.io.{IOException, InputStream}
 
+import com.typesafe.scalalogging.StrictLogging
+
 
 /**
  * Created by Jim Plush
@@ -28,7 +30,7 @@ import java.io.{IOException, InputStream}
  * Date: 8/16/11
  */
 
-object FileHelper extends Logging {
+object FileHelper extends StrictLogging {
 
   def loadResourceFile[A](filename: String, cls: Class[A]): String = {
     var filedata: String = ""
@@ -37,7 +39,7 @@ object FileHelper extends Logging {
       filedata = IOUtils.toString(is, "UTF-8")
     }
     catch {
-      case e: IOException => warn(e, e.toString)
+      case e: IOException => logger.warn(e.toString, e)
     }
     filedata
   }

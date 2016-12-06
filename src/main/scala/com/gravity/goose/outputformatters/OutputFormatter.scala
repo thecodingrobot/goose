@@ -22,8 +22,9 @@ import org.jsoup.nodes._
 import org.apache.commons.lang.StringEscapeUtils
 import org.jsoup.select.Elements
 import com.gravity.goose.text.StopWords
+import com.typesafe.scalalogging.LazyLogging
+
 import scala.collection.JavaConverters._
-import org.slf4j.Logger
 
 /**
 * Created by Jim Plush
@@ -31,19 +32,17 @@ import org.slf4j.Logger
 * Date: 8/17/11
 */
 
-trait OutputFormatter {
+trait OutputFormatter extends LazyLogging {
   val logPrefix = "outformat: "
 
   // used to remove tags within tags
   val tagReplace = "<[^>]+>".r
 
-  def logger: Logger
-
   private def selectElements(query: String, topNode: Element): Elements = topNode match {
     case null => new Elements(List.empty[Element].asJava)
     case n => n.select(query)
   }
-  
+
   /**
   * Depricated use {@link #getFormattedText(Element)}
   * @param topNode the top most node to format
@@ -78,18 +77,18 @@ trait OutputFormatter {
   */
   def convertToText(topNode: Element): String = topNode match {
     case null => ""
-    case node => {
-      (node.children().asScala.map((e: Element) => {
-        StringEscapeUtils.unescapeHtml(e.text).trim
-      })).toList.mkString("\n\n")
-    }
+    case node =>
+      node.children().asScala
+        .map((e: Element) => StringEscapeUtils.unescapeHtml(e.text).trim)
+        .toList
+        .mkString("\n\n")
 
   }
 
   /**
   * cleans up and converts any nodes that should be considered text into text
   */
-  private def convertLinksToText(topNode: Element) {
+  private def convertLinksToText(topNode: Element): Unit = {
     if (topNode != null) {
       logger.trace(logPrefix + "Turning links to text")
       val baseUri = topNode.baseUri()
@@ -102,14 +101,13 @@ trait OutputFormatter {
         }
       }
     }
-
   }
 
   /**
   * if there are elements inside our top node that have a negative gravity score, let's
   * give em the boot
   */
-  private def removeNodesWithNegativeScores(topNode: Element) {
+  private def removeNodesWithNegativeScores(topNode: Element): Unit = {
     def tryInt(text: String): Int = try {
       Integer.parseInt(text)
     } catch {
@@ -129,7 +127,7 @@ trait OutputFormatter {
   * replace common tags with just text so we don't have any crazy formatting issues
   * so replace <br>, <i>, <strong>, etc.... with whatever text is inside them
   */
-  private def replaceTagsWithText(topNode: Element) {
+  private def replaceTagsWithText(topNode: Element): Unit = {
     if (topNode != null) {
       val baseUri = topNode.baseUri()
       val bolds = topNode.getElementsByTag("b")
@@ -157,12 +155,8 @@ trait OutputFormatter {
     val sb = new StringBuilder()
 
     item.childNodes().asScala.foreach {
-      case childText: TextNode => {
-        sb.append(childText.getWholeText)
-      }
-      case childElement: Element => {
-        sb.append(childElement.outerHtml())
-      }
+      case childText: TextNode => sb.append(childText.getWholeText)
+      case childElement: Element => sb.append(childElement.outerHtml())
       case _ =>
     }
 
@@ -173,11 +167,9 @@ trait OutputFormatter {
   /**
   * remove paragraphs that have less than x number of words, would indicate that it's some sort of link
   */
-  private def removeParagraphsWithFewWords(topNode: Element) {
+  private def removeParagraphsWithFewWords(topNode: Element): Unit = {
     if (topNode != null) {
-      if (logger.isDebugEnabled) {
-        logger.debug("removeParagraphsWithFewWords starting...")
-      }
+      logger.debug("removeParagraphsWithFewWords starting...")
 
       val allNodes = topNode.getAllElements
 
@@ -190,14 +182,12 @@ trait OutputFormatter {
           }
         }
         catch {
-          case e: IllegalArgumentException => {
-            logger.error(e.getMessage)
-          }
+          case e: IllegalArgumentException => logger.error(e.getMessage, e)
         }
       }
 
       Option(topNode.getElementsByTag("p").first()).foreach {
-        case firstModdedNode: Element => {
+        firstModdedNode: Element => {
           // check for open parens as the first paragraph, e.g. businessweek4.txt (IT)
           val trimmed = firstModdedNode.text().trim()
           if (trimmed.startsWith("(") && trimmed.endsWith(")")) {

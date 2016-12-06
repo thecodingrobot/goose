@@ -18,8 +18,7 @@
 
 package com.gravity.goose.text
 
-import java.util.ArrayList
-import java.util.List
+import java.util
 
 /**
 * User: Jim Plush
@@ -43,13 +42,13 @@ class WordStats {
   /**
   * holds an actual list of the stop words we found
   */
-  var stopWords: List[String] = new ArrayList[String]
+  var stopWords: util.List[String] = new util.ArrayList[String]
 
-  def getStopWords: List[String] = {
+  def getStopWords: util.List[String] = {
     stopWords
   }
 
-  def setStopWords(words: List[String]) {
+  def setStopWords(words: util.List[String]): Unit = {
     stopWords = words
   }
 
@@ -57,7 +56,7 @@ class WordStats {
     stopWordCount
   }
 
-  def setStopWordCount(wordcount: Int) {
+  def setStopWordCount(wordcount: Int): Unit = {
     stopWordCount = wordcount
   }
 
@@ -65,7 +64,7 @@ class WordStats {
     wordCount
   }
 
-  def setWordCount(cnt: Int) {
+  def setWordCount(cnt: Int): Unit = {
     wordCount = cnt
   }
 

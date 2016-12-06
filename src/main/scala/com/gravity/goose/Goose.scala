@@ -18,7 +18,6 @@
 
 package com.gravity.goose
 
-import network.HtmlFetcher
 import java.io.File
 
 /**
@@ -26,7 +25,6 @@ import java.io.File
  * Date: 8/14/11
  */
 class Goose(config: Configuration = new Configuration) {
-
 
   initializeEnvironment()
 
@@ -42,10 +40,6 @@ class Goose(config: Configuration = new Configuration) {
   def extractContent(url: String): Article = {
     val cc = CrawlCandidate(config, url, null)
     sendToActor(cc)
-  }
-
-  def shutdownNetwork() {
-    HtmlFetcher.getHttpClient.getConnectionManager.shutdown()
   }
 
   def sendToActor(crawlCandidate: CrawlCandidate): Article = {

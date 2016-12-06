@@ -22,6 +22,4 @@ package com.gravity.goose.images
  * User: jim
  * Date: 8/18/11
  */
-class SecretGifException extends Exception {
-}
-
+class SecretGifException extends Exception

@@ -6,6 +6,4 @@ package com.gravity.goose.network
  * Date: 8/14/11
  */
 
-class MaxBytesException extends Exception {
-
-}
+class MaxBytesException extends Exception

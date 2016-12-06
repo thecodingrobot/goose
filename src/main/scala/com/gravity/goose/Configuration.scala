@@ -23,6 +23,7 @@ import com.gravity.goose.network.{AbstractHtmlFetcher, HtmlFetcher}
 import org.jsoup.nodes.Element
 
 import scala.beans.BeanProperty
+import scala.collection.JavaConverters._
 
 
 /**
@@ -80,10 +81,8 @@ class Configuration {
     import PublishDateExtractor._
 
     def extractCandidate(rootElement: Element, selector: String): Seq[java.util.Date] = {
-      import scala.collection.JavaConversions._
-
       try {
-        rootElement.select(selector).flatMap(item => safeParseISO8601Date(item.attr("content")))
+        rootElement.select(selector).asScala.flatMap(item => safeParseISO8601Date(item.attr("content")))
       }
       catch {
         case e: Exception =>
@@ -106,7 +105,7 @@ class Configuration {
       def bestModDate = modSelectors.flatMap(extractCandidate(rootElement, _)).reduceOption(minDate)
 
       // Return the oldest 'published' date, or else the oldest 'modified' date, or null if none.
-      bestPubDate.orElse(bestModDate).getOrElse(null)
+      bestPubDate.orElse(bestModDate).orNull
     }
   }
 
@@ -126,7 +125,7 @@ class Configuration {
     * @param extractor a concrete instance of {@link PublishDateExtractor}
   * @throws IllegalArgumentException if the instance passed in is <code>null</code>
   */
-  def setPublishDateExtractor(extractor: PublishDateExtractor) {
+  def setPublishDateExtractor(extractor: PublishDateExtractor): Unit = {
     if (extractor == null) throw new IllegalArgumentException("extractor must not be null!")
     this.publishDateExtractor = extractor
   }
@@ -140,13 +139,13 @@ class Configuration {
     * @param extractor a concrete instance of {@link AdditionalDataExtractor}
   * @throws IllegalArgumentException if the instance passed in is <code>null</code>
   */
-  def setAdditionalDataExtractor(extractor: AdditionalDataExtractor) {
+  def setAdditionalDataExtractor(extractor: AdditionalDataExtractor): Unit = {
     this.additionalDataExtractor = extractor
   }
 
   var htmlFetcher: AbstractHtmlFetcher = HtmlFetcher
 
-  def setHtmlFetcher(fetcher: AbstractHtmlFetcher) {
+  def setHtmlFetcher(fetcher: AbstractHtmlFetcher): Unit = {
     require(fetcher != null, "fetcher MUST NOT be null!")
     this.htmlFetcher = fetcher
   }

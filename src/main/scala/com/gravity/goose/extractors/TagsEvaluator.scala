@@ -10,7 +10,7 @@ import org.jsoup.nodes.Element
  */
 
 class TagsEvaluator(tags: scala.collection.Set[String]) extends Evaluator {
-  def matches(root: Element, element: Element) = tags.contains(element.tagName())
+  def matches(root: Element, element: Element): Boolean = tags.contains(element.tagName())
 }
 
 object TagsEvaluator {

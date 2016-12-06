@@ -1,47 +1,47 @@
 /**
- * Licensed to Gravity.com under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  Gravity.com licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+  * Licensed to Gravity.com under one
+  * or more contributor license agreements.  See the NOTICE file
+  * distributed with this work for additional information
+  * regarding copyright ownership.  Gravity.com licenses this file
+  * to you under the Apache License, Version 2.0 (the
+  * "License"); you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 package com.gravity.goose.images
 
 /**
- * Created by Jim Plush
- * User: jim
- * Date: 8/18/11
- */
+  * Created by Jim Plush
+  * User: jim
+  * Date: 8/18/11
+  */
 
 import java.io._
 import java.util.Random
 
 import com.gravity.goose.Configuration
 import com.gravity.goose.network.HtmlFetcher
-import com.gravity.goose.utils.Logging
+import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.IOUtils
 import org.apache.http.HttpEntity
-import org.apache.http.client.{ClientProtocolException, HttpClient}
 import org.apache.http.client.methods.HttpGet
-import org.apache.http.client.protocol.ClientContext
+import org.apache.http.client.protocol.HttpClientContext
+import org.apache.http.client.{ClientProtocolException, HttpClient}
 import org.apache.http.protocol.{BasicHttpContext, HttpContext}
 
 /**
-* This class will be responsible for storing images to disk
-*
-* @author Jim Plush
-*/
-object ImageSaver extends Logging {
+  * This class will be responsible for storing images to disk
+  *
+  * @author Jim Plush
+  */
+object ImageSaver extends StrictLogging {
   private def getFileExtension(config: Configuration, fileName: String): String = {
     var fileExtension: String = ""
     var mimeType: String = null
@@ -49,9 +49,7 @@ object ImageSaver extends Logging {
       val imageDims: ImageDetails = ImageUtils.getImageDimensions(config.imagemagickIdentifyPath, fileName)
       mimeType = imageDims.getMimeType
       if (mimeType == "GIF") {
-        if (logger.isDebugEnabled) {
-          logger.debug("SNEAKY GIF! " + fileName)
-        }
+        logger.debug("SNEAKY GIF! " + fileName)
         throw new SecretGifException
       }
       if (mimeType == "JPEG") {
@@ -65,16 +63,13 @@ object ImageSaver extends Logging {
       }
     }
     catch {
-      case e: SecretGifException => {
+      case e: SecretGifException =>
         throw e
-      }
-      case e: FileNotFoundException => {
+      case e: FileNotFoundException =>
         logger.error(e.getMessage)
-      }
-      case e: IOException => {
+      case e: IOException =>
         logger.error(e.getMessage)
         throw e
-      }
     }
     finally {
     }
@@ -84,7 +79,7 @@ object ImageSaver extends Logging {
   def fetchEntity(httpClient: HttpClient, imageSrc: String): Option[HttpEntity] = {
 
     val localContext: HttpContext = new BasicHttpContext
-    localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore)
+    localContext.setAttribute(HttpClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore)
     val httpget = new HttpGet(imageSrc)
     val response = httpClient.execute(httpget, localContext)
     val respStatus: String = response.getStatusLine.toString
@@ -94,7 +89,7 @@ object ImageSaver extends Logging {
       try {
         Some(response.getEntity)
       } catch {
-        case e: Exception => warn(e, e.toString); None
+        case e: Exception => logger.warn(e.toString, e); None
       } finally {
         httpget.abort()
       }
@@ -109,31 +104,28 @@ object ImageSaver extends Logging {
     val instream: InputStream = entity.getContent
     val outstream: OutputStream = new FileOutputStream(localSrcPath)
     try {
-      trace("Storing image locally: " + localSrcPath)
+      logger.trace("Storing image locally: " + localSrcPath)
       IOUtils.copy(instream, outstream)
       val fileExtension = ImageSaver.getFileExtension(config, localSrcPath)
       if (fileExtension == "" || fileExtension == null) {
-        trace("EMPTY FILE EXTENSION: " + localSrcPath)
+        logger.trace("EMPTY FILE EXTENSION: " + localSrcPath)
         return null
       }
       val f: File = new File(localSrcPath)
       if (f.length < config.minBytesForImages) {
-        if (logger.isDebugEnabled) {
-          logger.debug("TOO SMALL AN IMAGE: " + localSrcPath + " bytes: " + f.length)
-        }
+        logger.debug("TOO SMALL AN IMAGE: " + localSrcPath + " bytes: " + f.length)
         return null
       }
       val newFilename = localSrcPath + fileExtension
       val newFile: File = new File(newFilename)
       f.renameTo(newFile)
       //      localSrcPath = localSrcPath + fileExtension
-      trace("Image successfully Written to Disk")
+      logger.trace("Image successfully Written to Disk")
       newFilename
     }
     catch {
-      case e: Exception => {
+      case e: Exception =>
         throw e
-      }
     }
     finally {
       //            entity.consumeContent
@@ -143,57 +135,46 @@ object ImageSaver extends Logging {
   }
 
   /**
-  * stores an image to disk and returns the path where the file was written
-  *
-  * @param imageSrc
-  * @return
-  */
+    * stores an image to disk and returns the path where the file was written
+    */
   def storeTempImage(httpClient: HttpClient, linkhash: String, imageSrcMaster: String, config: Configuration): String = {
     var imageSrc = imageSrcMaster
 
 
     try {
       imageSrc = imageSrc.replace(" ", "%20")
-      trace("Starting to download image: " + imageSrc)
+      logger.trace("Starting to download image: " + imageSrc)
 
       fetchEntity(httpClient, imageSrc) match {
-        case Some(entity) => {
+        case Some(entity) =>
 
-            try {
-              return copyInputStreamToLocalImage(entity, linkhash, config)
-            }
-            catch {
-              case e: SecretGifException => {
-                throw e
-              }
-              case e: Exception => {
-                logger.error(e.getMessage); null
-              }
-            }
-
-        }
-        case None => trace("Unable to get entity for: " + imageSrc); null
+          try {
+            return copyInputStreamToLocalImage(entity, linkhash, config)
+          }
+          catch {
+            case e: SecretGifException =>
+              throw e
+            case e: Exception =>
+              logger.error(e.getMessage)
+              null
+          }
+        case None => logger.trace("Unable to get entity for: " + imageSrc); null
       }
 
     }
     catch {
-      case e: IllegalArgumentException => {
+      case e: IllegalArgumentException =>
         logger.warn(e.getMessage)
-      }
-      case e: SecretGifException => {
+      case e: SecretGifException =>
         raise(e)
-      }
-      case e: ClientProtocolException => {
+      case e: ClientProtocolException =>
         logger.error(e.toString)
-      }
-      case e: IOException => {
+      case e: IOException =>
         logger.error(e.toString)
-      }
-      case e: Exception => {
+      case e: Exception =>
         e.printStackTrace()
         logger.error(e.toString)
         e.printStackTrace()
-      }
     }
     finally {
 

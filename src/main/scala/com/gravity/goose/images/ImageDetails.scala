@@ -31,19 +31,19 @@ package com.gravity.goose.images
 class ImageDetails {
   def getWidth: Int = width
 
-  def setWidth(width: Int) {
+  def setWidth(width: Int): Unit = {
     this.width = width
   }
 
   def getHeight: Int = height
 
-  def setHeight(height: Int) {
+  def setHeight(height: Int): Unit = {
     this.height = height
   }
 
   def getMimeType: String = mimeType
 
-  def setMimeType(mimeType: String) {
+  def setMimeType(mimeType: String): Unit = {
     this.mimeType = mimeType
   }
 
@@ -58,5 +58,5 @@ class ImageDetails {
   /**
   * the mimeType of the image JPEG / PNG
   */
-  private var mimeType: String = null
+  private var mimeType: String = _
 }
