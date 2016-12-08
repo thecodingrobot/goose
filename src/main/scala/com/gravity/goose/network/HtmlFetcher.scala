@@ -109,11 +109,11 @@ object HtmlFetcher extends AbstractHtmlFetcher with StrictLogging {
       entity = response.getEntity
       if (entity != null) {
         instream = entity.getContent
-        var encodingType: String = "UTF-8"
+        var encodingType: String = config.getHtmlEncoding
         try {
           encodingType = ContentType.getOrDefault(entity).getCharset.displayName()
           if (encodingType == null) {
-            encodingType = "UTF-8"
+            encodingType = config.getDefaultHtmlEncoding
           }
         }
         catch {
