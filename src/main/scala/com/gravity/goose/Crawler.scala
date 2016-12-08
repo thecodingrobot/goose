@@ -30,6 +30,9 @@ import utils.{ParsingCandidate, URLHelper}
 import com.gravity.goose.outputformatters.{OutputFormatter, StandardOutputFormatter}
 import com.typesafe.scalalogging.{LazyLogging, StrictLogging}
 
+import scala.util.Try
+import scala.util.control.NonFatal
+
 /**
   * Created by Jim Plush
   * User: jim
@@ -106,10 +109,7 @@ class Crawler(config: Configuration) extends LazyLogging {
     if (crawlCandidate.rawHTML != null) {
       Some(crawlCandidate.rawHTML)
     } else {
-      config.getHtmlFetcher.getHtml(config, parsingCandidate.url.toString) match {
-        case Some(html) => Some(html)
-        case _ => None
-      }
+      config.getHtmlFetcher.getHtml(config, parsingCandidate.url.toString)
     }
   }
 
@@ -128,14 +128,12 @@ class Crawler(config: Configuration) extends LazyLogging {
   }
 
   def getDocument(url: String, rawlHtml: String): Option[Document] = {
-
-    try {
-      Some(Jsoup.parse(rawlHtml))
-    } catch {
-      case e: Exception =>
-        logger.trace("Unable to parse " + url + " properly into JSoup Doc")
-        None
+    val t = Try(Jsoup.parse(rawlHtml))
+    t.failed.foreach {
+      case NonFatal(e) =>
+        logger.warn("Unable to parse " + url + s" properly into JSoup Doc. Reason: [${e.getMessage}]", e)
     }
+    t.toOption
   }
 
   def getExtractor: ContentExtractor = {

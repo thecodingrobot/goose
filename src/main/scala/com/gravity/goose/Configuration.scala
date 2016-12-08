@@ -69,10 +69,11 @@ class Configuration {
   @BeanProperty
   var socketTimeout: Int = 10000
 
+  val defaultEncoding: String = "UTF-8"
+
   @BeanProperty
   var encoding: String = defaultEncoding
 
-  val defaultEncoding: String = "UTF-8"
 
   /**
     * used as the user agent that is sent with your web requests to extract an article

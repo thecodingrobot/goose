@@ -1,39 +1,42 @@
 /**
- * Licensed to Gravity.com under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  Gravity.com licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+  * Licensed to Gravity.com under one
+  * or more contributor license agreements.  See the NOTICE file
+  * distributed with this work for additional information
+  * regarding copyright ownership.  Gravity.com licenses this file
+  * to you under the Apache License, Version 2.0 (the
+  * "License"); you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 
 package com.gravity.goose
 
 import java.io.File
 
+import com.typesafe.scalalogging.LazyLogging
+
+import scala.util.control.NonFatal
+
 /**
- * Created by Jim Plush - Gravity.com
- * Date: 8/14/11
- */
-class Goose(config: Configuration = new Configuration) {
+  * Created by Jim Plush - Gravity.com
+  * Date: 8/14/11
+  */
+class Goose(config: Configuration = new Configuration) extends LazyLogging {
 
   initializeEnvironment()
 
   /**
-  * Main method to extract an article object from a URL, pass in a url and get back a Article
-  * @url The url that you want to extract
-  */
+    * Main method to extract an article object from a URL, pass in a url and get back a Article
+    */
   def extractContent(url: String, rawHTML: String): Article = {
-    val cc = new CrawlCandidate(config, url, rawHTML)
+    val cc = CrawlCandidate(config, url, rawHTML)
     sendToActor(cc)
   }
 
@@ -56,7 +59,7 @@ class Goose(config: Configuration = new Configuration) {
         f.mkdirs()
       }
     } catch {
-      case e: Exception =>
+      case NonFatal(e) => logger.error(s"Error initializing localStoragePath [${config.localStoragePath}]. Reason: [${e.getMessage}]", e)
     }
     if (!f.isDirectory) {
       throw new Exception(config.localStoragePath + " directory does not seem to exist, you need to set this for image processing downloads")
@@ -77,7 +80,7 @@ object Goose {
   val logPrefix = "goose: "
 
   // create the crawling actor that will accept bulk crawls
-//  val crawlingActor = Actor.actorOf[CrawlingActor]
-//  crawlingActor.start()
+  //  val crawlingActor = Actor.actorOf[CrawlingActor]
+  //  crawlingActor.start()
 
 }

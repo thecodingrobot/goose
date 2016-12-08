@@ -93,7 +93,7 @@ trait ContentExtractor extends StrictLogging {
     }
     catch {
       case e: NullPointerException =>
-        logger.warn(e.toString)
+        logger.warn(e.toString, e)
         string.empty
     }
 
@@ -394,7 +394,7 @@ trait ContentExtractor extends StrictLogging {
         currentScore = 0
     }
     val newScore: Int = currentScore + addToScore
-    val el = node.attr("gravityScore", Integer.toString(newScore))
+    node.attr("gravityScore", Integer.toString(newScore))
   }
 
   /**
@@ -578,9 +578,8 @@ trait ContentExtractor extends StrictLogging {
     val results = walkSiblings(topNode) {
       currentNode => {
         getSiblingContent(currentNode, baselineScoreForSiblingParagraphs)
-
       }
-    }.reverse.flatMap(itm => itm)
+    }.reverse.flatten
     topNode.child(0).before(results.mkString)
     topNode
   }
